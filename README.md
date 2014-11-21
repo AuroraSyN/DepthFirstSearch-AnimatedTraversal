@@ -10,5 +10,11 @@ Usage
 2. Save and exit the file.
 3. Run `@python dfs.py`
 
+Screenshots
+===========
+
+![alt tag](dfs1.png)
+![alt tag](dfs2.png)
+
 
 www.gokhanarik.com
