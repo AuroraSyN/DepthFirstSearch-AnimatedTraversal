@@ -13,7 +13,7 @@ node_number = 0
 node_colors = []
 vertices = []
 edges = []
-
+parents = {}
 node_colors_hash = {}
 
 ############################ Draw Graph ########################
@@ -55,7 +55,7 @@ def draw_graph(graph, node_size):
 
     # draw graph
     pos = nx.shell_layout(G)
-    nx.draw(G, pos, with_labels=True,node_size = 600, node_color=node_colors, edge_color=edge_colors)
+    nx.draw(G, pos, with_labels=True,node_size = 600, node_color=node_colors)
                                
     # show graph
     pylab.show()
@@ -63,25 +63,47 @@ def draw_graph(graph, node_size):
 
 ###################### Depth First Search ######################
 def dfs(g):
+    global parents
+
     for u in g.getVertices():
         if g.getVertex(u).getColor() == 'white':
             print "Start with node: %s" % u
+        #    parents = {}
             dfs_visit(g, g.getVertex(u))
 
 def dfs_visit(g, u):
+    global parents
+
+ #   raw_input()
     print "\t Checking node: %s" % u.getId()
     u.setColor('gray')
     change_node_color('gray', u.getId())
-
+     
     for v in u.getConnections():
         print "From %s trying to go to %s" % (u.getId(), v.getId())
+        if v.getColor() == 'gray':
+            print "Back Edge: %s Parent: %s" %( v.getId(), v.getPred() )
+            cycle(u.getId(), v.getId())
         if v.getColor() == 'white':
-     #       v.setPred(u)
+            v.setPred(u)
+            parents[v.getId()] = u.getId()
             dfs_visit(g, v)
     
+    print parents 
     u.setColor('black')
     change_node_color('black', u.getId())
 
+def cycle(u, v):
+    global parents
+    cycle = [v,u]
+    i = parents[u]
+
+    while i != v:
+        cycle.append(i)
+        i = parents[i]
+
+    print "CYCLE: %s" % cycle
+    
 ######################### Utility Functions #####################
 def change_node_color(c, node):
     global node_colors_hash
@@ -98,7 +120,7 @@ def change_node_color(c, node):
     pos = nx.shell_layout(G)
     nx.draw(G, pos,node_size = 600, node_color = node_colors )
     pylab.draw()
-    pause(4)
+    pause(2)
             
 
 def get_edges(g):
@@ -109,12 +131,24 @@ def get_edges(g):
 
 ############################# Start the Program ##################
 # 1. Declare the graph
-graph = {1: [2, 4],
-        2: [5],
-        3: [6, 5],
-        4: [2],
-        5: [4],
-        6: [6] }
+# graph = {1: [5],
+#        2: [1, 6],
+#        3: [2, 6],
+#        4: [7, 8],
+#        5: [2],
+#        6: [5],
+#        7: [3, 6],
+#        8: [4, 7] }
+
+graph = {1: [2, 8],
+        2: [1, 8, 3],
+        3: [2, 4, 6, 9],
+        4: [3, 5, 6],
+        5: [4, 6],
+        6: [3, 5, 7, 4],
+        7: [6, 8, 9],
+        8: [1, 2, 7, 9],
+        9: [3, 7, 8]}
 
 # 1. Create graph
 graphl = Graph()
@@ -129,3 +163,5 @@ draw_graph(graph, len(edges) )
 
 # 3. Run the algorithm
 dfs(graphl)
+
+pause(30)
